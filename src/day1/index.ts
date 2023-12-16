@@ -54,7 +54,6 @@ const findNumber = (
   const maybeNumber = Number(char);
 
   if (!Number.isNaN(maybeNumber)) {
-    console.log("Real number");
     return maybeNumber;
   }
 
@@ -76,7 +75,6 @@ const findNumber = (
   });
 
   if (number) {
-    console.log("Spelled number", number);
     return spelledNumbers.indexOf(number) + 1;
   }
 
@@ -94,7 +92,6 @@ const getCalibrationValue = (line: string) => {
     if (tens === -1) {
       const leftValueN = findNumber(line, left, leftNumbersDB, -1);
       if (leftValueN != null) {
-        console.log('Left Value', leftValueN)
         tens = leftValueN * 10;
         continue;
       }
@@ -105,7 +102,6 @@ const getCalibrationValue = (line: string) => {
     if (ones === -1) {
       const rightValueN = findNumber(line, right, rightNumbersDB, 1);
       if (rightValueN != null) {
-        console.log('Right Value', rightValueN)
         ones = rightValueN;
       }
 
@@ -125,7 +121,6 @@ const getCalibrationValue = (line: string) => {
   let acc = 0;
   for await (const line of file.readLines()) {
     const lineCB = getCalibrationValue(line);
-    console.log(`Line: ${line} -> ${lineCB}`);
     acc += lineCB;
   }
   console.log(acc);

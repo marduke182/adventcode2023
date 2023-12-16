@@ -77,10 +77,7 @@ const calcCardPrize = (
       const numCards = copies.get(scratchcard.id + i + 1) || 0;
       copies.set(scratchcard.id + i + 1, numCards + (currentCardCopies + 1));
     }
-
-
   }
 
-  console.log(copies)
   console.log(Array.from(copies.values()).reduce((acc, v) => acc + v, 0));
 })();
