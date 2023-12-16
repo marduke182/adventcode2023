@@ -59,7 +59,16 @@ const findNumbersInEngine = (engine: string[]): NumberCords[] => {
   return numbers;
 };
 
-const checkIfNumberIsValid = (engine: Engine, number: NumberCords): boolean => {
+interface SymbolCords {
+  x: number;
+  y: number;
+  symbol: string;
+}
+
+const findSymbolCloseToNumber = (
+  engine: Engine,
+  number: NumberCords,
+): SymbolCords | null => {
   const { x, y, length } = number;
   const xLength = engine.length;
   const yLength = engine[0].length;
@@ -71,20 +80,21 @@ const checkIfNumberIsValid = (engine: Engine, number: NumberCords): boolean => {
 
   for (let i = top; i <= bottom; i++) {
     for (let j = left; j <= right; j++) {
-      console.log(j);
       if (i === x && j >= y && j < y + length) {
-        console.log(j, engine[i][j]);
         continue;
       }
 
-      console.log(i, j, engine[i][j]);
       if (isSymbol(engine[i][j])) {
-        return true;
+        return {
+          x: i,
+          y: j,
+          symbol: engine[i][j],
+        };
       }
     }
   }
 
-  return false;
+  return null;
 };
 
 (async () => {
@@ -94,12 +104,45 @@ const checkIfNumberIsValid = (engine: Engine, number: NumberCords): boolean => {
     engine.push(line);
   }
 
-  const acc = findNumbersInEngine(engine).reduce((acc, numberCords) => {
-    if (checkIfNumberIsValid(engine, numberCords)) {
-      return acc + numberCords.number;
+  const cords = findNumbersInEngine(engine);
+
+  // Part 1 - Find numbers
+  let acc = 0
+  cords.forEach((numberCords) => {
+    const symbolCords = findSymbolCloseToNumber(engine, numberCords);
+    if (symbolCords == null) {
+      return;
+    }
+
+    acc += numberCords.number;
+
+  }, 0);
+
+  // Part 2 - Find gears
+  const gears: Record<string, NumberCords[]> = {};
+  cords.forEach((numberCords) => {
+    const symbolCords = findSymbolCloseToNumber(engine, numberCords);
+    if (!symbolCords || symbolCords.symbol !== "*") {
+      return;
+    }
+
+    const { x, y } = symbolCords;
+    const gearCords = `${x},${y}`;
+    if (gears[gearCords] == null) {
+      gears[gearCords] = [];
+    }
+
+    gears[gearCords].push(numberCords);
+  }, 0);
+
+  const gearRatiosSum = Object.values(gears).reduce((acc, gear) => {
+    const [gear1, gear2] = gear;
+    if (gear1 != undefined && gear2 != undefined) {
+      return acc + gear1.number * gear2.number;
     }
     return acc;
   }, 0);
 
   console.log("Part 1", acc);
+  console.log("Part 2", gearRatiosSum);
 })();
