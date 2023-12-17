@@ -2,16 +2,16 @@ const cardValue = {
   A: 13,
   K: 12,
   Q: 11,
-  J: 10,
-  T: 9,
-  "9": 8,
-  "8": 7,
-  "7": 6,
-  "6": 5,
-  "5": 4,
-  "4": 3,
-  "3": 2,
-  "2": 1,
+  T: 10,
+  "9": 9,
+  "8": 8,
+  "7": 7,
+  "6": 6,
+  "5": 5,
+  "4": 4,
+  "3": 3,
+  "2": 2,
+  J: 1,
 };
 
 const handTypeValue = {
@@ -26,21 +26,33 @@ const handTypeValue = {
 const multiplier = [10000, 1000, 100, 10, 1];
 export const getHandScore = (hand: string): number => {
   const cards: Record<string, number> = {};
-  let score = 0;
 
   for (let i = 0; i < 5; i++) {
     const char = hand[i];
-    score += cardValue[char as keyof typeof cardValue] * multiplier[i];
     if (cards[char] == null) {
       cards[char] = 0;
     }
     cards[char]++;
   }
 
-  const handString = Object.values(cards)
-    .sort((a, b) => b - a)
-    .join("");
+  const jokers = cards["J"] || 0;
 
+  delete cards["J"];
+
+  const handCount = Object.values(cards).sort((a, b) => b - a);
+  for (let i = 0; i < jokers; i++) {
+    if (handCount.length === 0) {
+      handCount.push(1);
+      continue;
+    }
+    handCount[0] = handCount[0] + 1;
+  }
+
+  if (handCount.reduce((acc, count) => acc + count, 0) !== 5) {
+    throw new Error(`Invalid hand ${hand}`);
+  }
+
+  const handString = handCount.join("");
   const handScore =
     handTypeValue[handString as keyof typeof handTypeValue] || 0;
 
